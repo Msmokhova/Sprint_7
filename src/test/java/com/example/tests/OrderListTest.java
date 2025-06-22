@@ -1,6 +1,4 @@
 package com.example.tests;
-
-import com.example.api.OrderApiClient;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit5.AllureJunit5;
 import io.restassured.response.Response;

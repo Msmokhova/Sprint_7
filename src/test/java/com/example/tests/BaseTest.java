@@ -9,11 +9,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(AllureJunit5.class)
 public abstract class BaseTest {
     protected static CourierApiClient courierApi;
-    protected static OrderApiClient orderApi;  // Добавляем OrderApiClient
+    protected static OrderApiClient orderApi;
 
     @BeforeAll
     public static void setup() {
         courierApi = new CourierApiClient();
-        orderApi = new OrderApiClient();  // Инициализируем OrderApiClient
+        orderApi = new OrderApiClient();
     }
 }

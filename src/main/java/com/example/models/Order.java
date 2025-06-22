@@ -1,16 +1,36 @@
 package com.example.models;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Order {
+    @JsonProperty("firstName")
     private String firstName;
+
+    @JsonProperty("lastName")
     private String lastName;
+
+    @JsonProperty("address")
     private String address;
+
+    @JsonProperty("metroStation")
     private int metroStation;
+
+    @JsonProperty("phone")
     private String phone;
+
+    @JsonProperty("rentTime")
     private int rentTime;
+
+    @JsonProperty("deliveryDate")
     private String deliveryDate;
+
+    @JsonProperty("comment")
     private String comment;
+
+    @JsonProperty("color")
     private List<String> color;
 
     // Конструкторы
@@ -30,7 +50,6 @@ public class Order {
         this.color = color;
     }
 
-    // Геттеры и сеттеры
     public String getFirstName() {
         return firstName;
     }

@@ -1,6 +1,5 @@
 package com.example.tests;
 
-import com.example.api.OrderApiClient;
 import com.example.models.Order;
 import io.qameta.allure.Step;
 import io.qameta.allure.junit5.AllureJunit5;
@@ -35,25 +34,27 @@ public class OrderTest extends BaseTest {
 
     private static Stream<Arguments> provideColorData() {
         return Stream.of(
-                Arguments.of("Один цвет: BLACK", Arrays.asList("BLACK")),
-                Arguments.of("Один цвет: GREY", Arrays.asList("GREY")),
-                Arguments.of("Два цвета", Arrays.asList("BLACK", "GREY")),
-                Arguments.of("Без цвета", Collections.emptyList())
+                Arguments.of(Arrays.asList("BLACK")),
+                Arguments.of(Arrays.asList("GREY")),
+                Arguments.of(Arrays.asList("BLACK", "GREY")),
+                Arguments.of(Collections.emptyList())
         );
     }
 
-    @ParameterizedTest(name = "{0}")
+    @ParameterizedTest
     @MethodSource("provideColorData")
     @DisplayName("Создание заказа с разными цветами")
-    public void testCreateOrderWithDifferentColors(String testName, List<String> colors) {
-        Order order = createTestOrder(colors);
+    public void testCreateOrderWithDifferentColors(List<String> colors) {
+        Order order = createOrderWithColors(colors);
         Response response = createOrder(order);
         verifyOrderCreation(response);
+        verifyOrderData(response, order);
     }
 
     @Test
     @DisplayName("Получение списка заказов")
     public void testGetOrdersList() {
+        createTestOrder();
         Response response = getOrdersList();
         verifyOrdersList(response);
     }
@@ -61,13 +62,19 @@ public class OrderTest extends BaseTest {
     @Test
     @DisplayName("Получение списка заказов с лимитом")
     public void testGetOrdersListWithLimit() {
-        int limit = 1;
-        Response response = getOrdersListWithLimit(limit);
-        verifyOrdersListWithLimit(response, limit);
+        createTestOrder();
+        Response response = getOrdersListWithLimit(1);
+        verifyOrdersListWithLimit(response, 1);
     }
 
-    @Step("Создание тестового заказа с цветами: {colors}")
-    private Order createTestOrder(List<String> colors) {
+    @Step("Создание тестового заказа")
+    private void createTestOrder() {
+        Order order = createOrderWithColors(Collections.emptyList());
+        createOrder(order);
+    }
+
+    @Step("Создание заказа с цветами: {colors}")
+    private Order createOrderWithColors(List<String> colors) {
         return new Order(
                 DEFAULT_ORDER.getFirstName(),
                 DEFAULT_ORDER.getLastName(),
@@ -83,38 +90,58 @@ public class OrderTest extends BaseTest {
 
     @Step("Отправка запроса на создание заказа")
     private Response createOrder(Order order) {
-        return orderApi.createOrder(order);
+        return orderApi.createOrder(order)
+                .then()
+                .extract()
+                .response();
     }
 
-    @Step("Проверка успешного создания заказа")
+    @Step("Проверка создания заказа")
     private void verifyOrderCreation(Response response) {
         response.then()
                 .statusCode(201)
                 .body("track", notNullValue());
     }
 
+    @Step("Проверка данных заказа")
+    private void verifyOrderData(Response response, Order expectedOrder) {
+        int trackId = response.jsonPath().getInt("track");
+        orderApi.getOrderByTrack(trackId)
+                .then()
+                .statusCode(200)
+                .body("order.firstName", equalTo(expectedOrder.getFirstName()))
+                .body("order.lastName", equalTo(expectedOrder.getLastName()))
+                .body("order.address", equalTo(expectedOrder.getAddress()));
+    }
+
     @Step("Получение списка заказов")
     private Response getOrdersList() {
-        return orderApi.getOrdersList();
+        return orderApi.getOrdersList()
+                .then()
+                .extract()
+                .response();
     }
 
     @Step("Проверка списка заказов")
     private void verifyOrdersList(Response response) {
         response.then()
                 .statusCode(200)
-                .body("orders", notNullValue());
+                .body("orders", not(empty()))
+                .body("orders[0].id", notNullValue());
     }
 
-    @Step("Получение списка заказов с лимитом {limit}")
+    @Step("Получение списка с лимитом {limit}")
     private Response getOrdersListWithLimit(int limit) {
-        return orderApi.getOrdersListWithLimit(limit);
+        return orderApi.getOrdersListWithLimit(limit)
+                .then()
+                .extract()
+                .response();
     }
 
-    @Step("Проверка списка заказов с лимитом")
+    @Step("Проверка лимита заказов")
     private void verifyOrdersListWithLimit(Response response, int limit) {
         response.then()
                 .statusCode(200)
-                .body("orders.size()", lessThanOrEqualTo(limit))
-                .body("orders", not(empty()));
+                .body("orders.size()", lessThanOrEqualTo(limit));
     }
 }
