@@ -2,6 +2,7 @@ package com.example.api;
 
 import com.example.models.Courier;
 import io.restassured.response.Response;
+import com.example.api.LoginCredentials;
 
 public class CourierApiClient extends BaseApiClient {
 
@@ -25,21 +26,4 @@ public class CourierApiClient extends BaseApiClient {
                 .toString();
     }
 
-    private static class LoginCredentials {
-        private final String login;
-        private final String password;
-
-        public LoginCredentials(String login, String password) {
-            this.login = login;
-            this.password = password;
-        }
-
-        public String getLogin() {
-            return login;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-    }
 }

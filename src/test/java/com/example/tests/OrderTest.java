@@ -105,8 +105,8 @@ public class OrderTest extends BaseTest {
 
     @Step("Проверка данных заказа")
     private void verifyOrderData(Response response, Order expectedOrder) {
-        int trackId = response.jsonPath().getInt("track");
-        orderApi.getOrderByTrack(trackId)
+        int track = response.jsonPath().getInt("track");
+        orderApi.getOrderByTrack(track)
                 .then()
                 .statusCode(200)
                 .body("order.firstName", equalTo(expectedOrder.getFirstName()))

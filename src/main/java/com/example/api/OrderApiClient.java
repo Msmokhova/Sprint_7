@@ -20,9 +20,9 @@ public class OrderApiClient extends BaseApiClient {
                 .queryParam("limit", limit)
                 .get("/api/v1/orders");
     }
-    public Response getOrderByTrack(int trackId) {
+    public Response getOrderByTrack(int track) {
         return given()
-                .queryParam("t", trackId)
+                .queryParam("t", track)
                 .get("/api/v1/orders/track");
     }
 
